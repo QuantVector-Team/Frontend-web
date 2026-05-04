@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>История стратегий</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #0b0b0f;
+            color: #fff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Анимированный фон (как в дашборде) */
+        body::before {
+            content: "";
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(60deg,
+                    rgba(168, 85, 247, 0.05),
+                    rgba(168, 85, 247, 0.05) 2px,
+                    transparent 2px,
+                    transparent 40px);
+            animation: bg 25s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes bg {
+            to {
+                transform: translate(-300px, -300px);
+            }
+        }
+
+        /* Боковое меню */
+        .sidebar {
+            width: 160px;
+            background: #0f0f14;
+            padding: 20px;
+            border-right: 1px solid #1a1a22;
+        }
+
+        .sidebar a {
+            display: block;
+            margin-bottom: 15px;
+            color: #888;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        /* Основной блок */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Верхняя панель */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            border-bottom: 1px solid #1a1a22;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Аккаунт */
+        .account {
+            position: relative;
+            padding: 8px 15px;
+            background: linear-gradient(45deg, #7c3aed, #a855f7);
+            border-radius: 20px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .dropdown {
+            position: absolute;
+            right: 0;
+            top: 55px;
+            width: 200px;
+            background: #0f0f14;
+            border: 1px solid #a855f7;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+
+        .dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .logout {
+            padding: 10px;
+            text-align: center;
+            background: #ff2d2d;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .logout:hover {
+            box-shadow: 0 0 15px rgba(255, 45, 45, 0.6);
+        }
+
+        /* Контент: Таблица Истории */
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead tr {
+            border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+        }
+
+        th {
+            color: #a855f7;
+            padding: 15px 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid #1a1a22;
+            color: #ddd;
+            font-size: 15px;
+        }
+
+        tbody tr {
+            transition: background 0.3s;
+        }
+
+        tbody tr:hover {
+            background: rgba(168, 85, 247, 0.08);
+        }
+
+        /* Цвета профита */
+        .profit-positive {
+            color: #26a69a;
+            font-weight: bold;
+        }
+
+        .profit-negative {
+            color: #ef5350;
+            font-weight: bold;
+        }
+
+        .badge-symbol {
+            background: #1a1a22;
+            border: 1px solid #444;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .loading-text {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <a href="dashboard.html">Дашборд</a>
+        <a href="history.html" class="active">История</a>
+        <a href="#" onclick="logout(event)">Выйти</a>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="title">История тестов</div>
+
+            <div class="account" onclick="toggleAccount(event)">
+                Аккаунт ▾
+                <div class="dropdown" id="dropdown" onclick="event.stopPropagation()">
+                    <div class="user-info">
+                        <b id="userName">Пользователь</b>
+                        <div class="user-email" id="userEmail">user@mail.ru</div>
+                    </div>
+                    <div class="logout" onclick="logout(event)">ВЫЙТИ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Пара</th>
+                            <th>Стратегия</th>
+                            <th>Профит (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="4" class="loading-text">Загрузка истории...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL твоего сервера (Подставь правильный путь к истории!)
+        const API_HISTORY_URL = "http://100.96.16.111:8080/api/history";
+
+        /* ========================================= */
+        /* ИНИЦИАЛИЗАЦИЯ И ДАННЫЕ ПОЛЬЗОВАТЕЛЯ       */
+        /* ========================================= */
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Проверяем токен, если нет - на страницу входа
+            const token = localStorage.getItem("token");
+            if (!token) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            // 2. Подставляем почту и логин
+            const savedEmail = localStorage.getItem("userEmail");
+            const savedLogin = localStorage.getItem("userLogin");
+            if (savedEmail) document.getElementById("userEmail").innerText = savedEmail;
+            if (savedLogin) document.getElementById("userName").innerText = savedLogin;
+
+            // 3. Загружаем историю
+            fetchHistory(token);
+        });
+
+        /* ========================================= */
+        /* ЛОГИКА МЕНЮ АККАУНТА И ВЫХОДА             */
+        /* ========================================= */
+        function toggleAccount(event) {
+            document.getElementById("dropdown").classList.toggle("active");
+        }
+
+        document.addEventListener("click", function (event) {
+            const accountBtn = document.querySelector('.account');
+            if (!accountBtn.contains(event.target)) {
+                document.getElementById("dropdown").classList.remove("active");
+            }
+        });
+
+        function logout(event) {
+            if (event) event.preventDefault();
+            localStorage.removeItem("token");
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userLogin");
+            window.location.href = "index.html";
+        }
+
+        /* ========================================= */
+        /* ПОЛУЧЕНИЕ И ОТРИСОВКА ИСТОРИИ ИЗ JSON     */
+        /* ========================================= */
+        async function fetchHistory(token) {
+            const tbody = document.getElementById("historyTableBody");
+
+            try {
+                const res = await fetch(API_HISTORY_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                        // Если сервер требует токен в заголовках, раскомментируй строку ниже:
+                        // , "Authorization": token 
+                    },
+                    body: JSON.stringify({
+                        platform: "web", // Для сайта обычно web (но если сервер требует mobile, поменяй)
+                        token: token,
+                        limit: 10
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.status === "success") {
+                    tbody.innerHTML = ""; // Очищаем текст "Загрузка..."
+
+                    if (!data.data || data.data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="loading-text">История пуста. Запустите бэктест!</td></tr>`;
+                        return;
+                    }
+
+                    // Рендерим каждую строчку из JSON
+                    data.data.forEach(item => {
+                        // Определяем класс и знак плюса для профита
+                        const isProfit = item.profit_percent >= 0;
+                        const profitClass = isProfit ? "profit-positive" : "profit-negative";
+                        const profitSign = isProfit && item.profit_percent > 0 ? "+" : "";
+
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td><span class="badge-symbol">${item.symbol}</span></td>
+                    <td>${item.strategy_name}</td>
+                    <td class="${profitClass}">${profitSign}${item.profit_percent.toFixed(2)}%</td>
+                `;
+                        tbody.appendChild(row);
+                    });
+
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="4" class="loading-text" style="color: #ef5350;">Ошибка: ${data.message || 'Не удалось загрузить'}</td></tr>`;
+                }
+
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="4" class="loading-text" style="color: #ef5350;">Нет связи с сервером</td></tr>`;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
