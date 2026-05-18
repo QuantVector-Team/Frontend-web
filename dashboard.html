@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд бэктестов — QuantVector</title>
 
+    <!-- Библиотека графиков TradingView -->
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
 
     <style>
@@ -95,9 +96,10 @@
         }
 
         .brand img {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
+            object-fit: cover;
             box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
         }
 
@@ -131,7 +133,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(168, 85, 247, 0.3);
             border-radius: 12px;
             padding: 15px;
-            z-index: 100;
+            z-index: 1001;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
@@ -140,9 +142,10 @@
 
         .dropdown.active {
             opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }.user-info { text-align: center; margin-bottom: 15px; }
+            visibility: visible;transform: translateY(0);
+        }
+
+        .user-info { text-align: center; margin-bottom: 15px; }
         .user-email { font-size: 12px; color: #aaa; margin-top: 5px; }
 
         .logout-btn {
@@ -223,6 +226,7 @@
             font-size: clamp(14px, 2vw, 16px);
             max-width: 800px;
             margin: 0 auto;
+            line-height: 1.5;
         }
 
         /* Рабочая область (График + Настройки) */
@@ -241,7 +245,7 @@
             border-radius: 16px;
             padding: 20px;
             position: relative;
-            min-height: 400px; /* Для мобилок */
+            min-height: 400px; 
         }
 
         /* Статистика */
@@ -252,7 +256,7 @@
             background: rgba(0, 0, 0, 0.4);
             padding: 15px;
             border-radius: 12px;
-            flex-wrap: wrap; /* Для мобилок */
+            flex-wrap: wrap; 
         }
 
         .stat-box { flex: 1; min-width: 120px; }
@@ -262,18 +266,21 @@
         .profit-negative { color: #ef5350; text-shadow: 0 0 10px rgba(239, 83, 80, 0.4); }
 
         #chart {
-            flex: 1; width: 100%; border-radius: 12px; overflow: hidden;
+            flex: 1; width: 100%; border-radius: 12px; overflow: hidden; position: relative;z-index: 1;
         }
 
         .chart-controls {
             position: absolute;
-            top: 100px; left: 35px;
-            z-index: 50;
-        }.toggle-btn {
+            top: 105px; left: 35px;
+            z-index: 100; /* Чтобы график не перекрывал кнопку */
+        }
+
+        .toggle-btn {
             background: rgba(20, 20, 28, 0.9);
             border: 1px solid #a855f7; color: white;
             padding: 8px 15px; border-radius: 8px; cursor: pointer;
             font-size: 12px; transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
         }
         .toggle-btn:hover { background: #a855f7; }
 
@@ -331,11 +338,11 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Адаптив под мобилки */
-        @media (max-width: 900px) {
+        max-width: 900px {
             .workspace { flex-direction: column; }
             .settings-area { width: 100%; }
             .chart-area { min-height: 500px; }
-            .brand-name { display: none; } /* Прячем текст лого для экономии места */
+            .brand-name { display: none; } /* Прячем текст лого на телефоне */
         }
     </style>
 </head>
@@ -366,7 +373,8 @@
 
     <!-- БОКОВОЕ МЕНЮ -->
     <div class="sidebar" id="sidebar">
-        <button class="close-btn" onclick="toggleSidebar()">×</button><a href="index.html">🏠 Главная</a>
+        <button class="close-btn" onclick="toggleSidebar()">×</button>
+        <a href="index.html">🏠 Главная</a>
         <a href="dashboard.html">📊 Дашборд</a>
         <a href="history.html">📁 История стратегий</a>
         <a href="#" onclick="logout(event)" style="color: #ff2d2d; margin-top: 20px;">🚪 Выйти</a>
@@ -376,13 +384,14 @@
     <!-- ОСНОВНОЙ КОНТЕНТ -->
     <div class="main-container">
         
+        <!-- Описание платформы -->
         <div class="intro-text">
             <h1 class="heavy-text">Рабочая область Бэктеста</h1>
-            <p>Настройте параметры торговой пары, выберите индикатор и укажите стартовый депозит. Алгоритм обработает исторические данные и выведет график доходности.</p>
+            <p>Настройте параметры торговой пары, выберите индикатор и укажите стартовый депозит. Наш алгоритм обработает исторические данные и выведет детализированный график доходности.</p>
         </div>
 
         <div class="workspace">
-            <!-- Левая часть: График и стата -->
+            <!-- Левая часть: График и статистика -->
             <div class="chart-area">
                 <div class="stats-panel">
                     <div class="stat-box">
@@ -422,8 +431,8 @@
                     </select>
                     
                     <label>Начальный баланс ($)</label>
-                    <!-- Используем text, чтобы обрабатывать запятые вручную через JS -->
-                    <input type="text" id="start_balance" placeholder="1000.50" value="1000">
+                    <!-- Type=text чтобы корректно читать запятые -->
+                    <input type="text" id="start_balance" placeholder="Напр: 1000.50 или 1000,50" value="1000">
                 </div>
 
                 <div class="settings-group">
@@ -453,7 +462,8 @@
                 document.getElementById("userEmail").innerText = savedEmail;document.getElementById("userName").innerText = savedLogin;
                 document.getElementById("headerUserName").innerText = savedLogin;
             } else {
-                window.location.href = "login.html"; // Если не вошел, кидаем на авторизацию
+                // Если не вошел, кидаем на авторизацию
+                window.location.href = "login.html"; 
             }
         });
 
@@ -468,8 +478,12 @@
             event.stopPropagation();
             document.getElementById("dropdown").classList.toggle("active");
         }
-        document.addEventListener("click", () => {
-            document.getElementById("dropdown").classList.remove("active");
+        
+        document.addEventListener("click", (event) => {
+            const dropdown = document.getElementById("dropdown");
+            if (dropdown && dropdown.classList.contains("active")) {
+                dropdown.classList.remove("active");
+            }
         });
 
         function logout(event) {
@@ -508,7 +522,7 @@
             }
         }
 
-        // Адаптивный график при ресайзе
+        // Адаптивный график при ресайзе окна
         new ResizeObserver(entries => {
             if (entries.length === 0 || entries[0].target !== chartElement) return;
             const newRect = entries[0].contentRect;
@@ -517,17 +531,18 @@
 
         // --- ПАРАМЕТРЫ СТРАТЕГИЙ ---
         function slider(id, label, min, max, val, step = 1) {
-            // Для Bollinger Bands отклонения используем input type="text" чтобы юзер мог писать запятую
+            // Для Bollinger Bands используем текстовое поле, чтобы вводить запятые
             if(id === "deviation") {
-                return 
-                `<div class="slider-block">
+                return `
+                <div class="slider-block">
                     <label style="color:#ddd;">${label}</label>
-                    <input type="text" id="${id}" value="${val}" placeholder="Например 2.0 или 2,5">
+                    <input type="text" id="${id}" value="${val}" placeholder="Напр. 2.0 или 2,5">
                 </div>`;
             }
 
-            return 
-            `<div class="slider-block">
+            // Для остальных ползунки
+            return `
+            <div class="slider-block">
                 <div class="slider-label">
                     <span>${label}</span>
                     <span id="${id}_v" style="color: #a855f7; font-weight: bold;">${val}</span>
@@ -540,8 +555,10 @@
         const strategySelect = document.getElementById("strategySelect");
 
         function renderParams() {
-            let s = strategySelect.value;let h = "";
-            if (s === "RSI_Oscillator") {
+            let s = strategySelect.value;
+            let h = "";
+
+            if(s === "RSI_Oscillator") {
                 h += slider("period", "Период", 5, 50, 14);
                 h += slider("buy_level", "Уровень покупки", 10, 40, 30);
                 h += slider("sell_level", "Уровень продажи", 60, 90, 70);
@@ -557,23 +574,27 @@
             }
             else if (s === "Bollinger_Bands") {
                 h += slider("window", "Размер окна", 10, 100, 20);
-                h += slider("deviation", "Отклонение (Float)", 1, 4, 2); 
+                h += slider("deviation", "Отклонение (с точкой/запятой)", 1, 4, 2); 
             }
             paramsDiv.innerHTML = h;
 
+            // Вешаем обработчики на ползунки для отображения цифры
             paramsDiv.querySelectorAll("input[type=range]").forEach(i => {
                 let v = document.getElementById(i.id + "_v");
-                i.addEventListener("input", () => v.innerText = i.value);
+                if(v) {
+                    i.addEventListener("input", () => v.innerText = i.value);
+                }
             });
         }
         strategySelect.onchange = renderParams;
         renderParams(); 
 
-        // --- УНИВЕРСАЛЬНЫЙ ПАРСЕР ЧИСЕЛ С ЗАПЯТОЙ ---
+        // --- УНИВЕРСАЛЬНЫЙ ПАРСЕР ЧИСЕЛ С ЗАПЯТОЙ И ТОЧКОЙ ---
         function parseToFloatWithComma(strValue) {
             if(!strValue) return 0;
-            // Меняем запятую на точку и парсим
-            return parseFloat(strValue.toString().replace(',', '.'));
+            // Меняем запятую на точку, игнорируем пробелы
+            let cleanedStr = strValue.toString().replace(/\s/g, '').replace(',', '.');
+            return parseFloat(cleanedStr);
         }
 
         // --- ЗАПУСК БЭКТЕСТА ---
@@ -583,8 +604,8 @@
             btn.disabled = true;
 
             let params = {};
+            // Собираем параметры стратегии и парсим (чтобы 2,5 стало 2.5)
             paramsDiv.querySelectorAll("input").forEach(i => { 
-                // Загоняем все параметры через наш парсер запятых
                 params[i.id] = parseToFloatWithComma(i.value); 
             });
 
@@ -621,7 +642,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error(Ошибка сервера: ${res.status});
+                if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
 
                 const data = await res.json();
 
@@ -631,10 +652,13 @@
                     const candleData = [];
 
                     data.chart_data.forEach(x => {
-                        lineData.push({ time: x.time, value: x.balance });const open = x.open !== undefined ? x.open : prevBal;
+                        lineData.push({ time: x.time, value: x.balance });
+
+                        const open = x.open !== undefined ? x.open : prevBal;
                         const close = x.close !== undefined ? x.close : x.balance;
                         const high = x.high !== undefined ? x.high : Math.max(open, close);
                         const low = x.low !== undefined ? x.low : Math.min(open, close);
+                        
                         candleData.push({ time: x.time, open, high, low, close });
                         prevBal = close;
                     });
@@ -647,10 +671,11 @@
                     const netProfit = finalBalance - startBalance;
                     const profitPct = (netProfit / startBalance) * 100;
 
-                    document.getElementById("valFinalBalance").innerText = $${finalBalance.toFixed(2)};
+                    document.getElementById("valFinalBalance").innerText = `$${finalBalance.toFixed(2)}`;
+                    
                     const profitEl = document.getElementById("valProfit");
-                    profitEl.innerText = ${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)} (${profitPct.toFixed(2)}%);
-                    profitEl.className = stat-value ${netProfit >= 0 ? 'profit-positive' : 'profit-negative'};
+                    profitEl.innerText = `${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)} (${profitPct.toFixed(2)}%)`;
+                    profitEl.className = `stat-value ${netProfit >= 0 ? 'profit-positive' : 'profit-negative'}`;
                 } else {
                     alert("Сервер вернул пустые данные.");
                 }
