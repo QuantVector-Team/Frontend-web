@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Дашборд бэктестов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд бэктестов — QuantVector</title>
 
     <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
 
@@ -11,21 +12,25 @@
         * {
             font-family: Arial, sans-serif;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             background: #0b0b0f;
             color: #fff;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Анимированный фон */
         body::before {
             content: "";
             position: fixed;
+            top: 0;
+            left: 0;
             width: 200%;
             height: 200%;
             background: repeating-linear-gradient(60deg,
@@ -38,356 +43,367 @@
         }
 
         @keyframes bg {
-            to {
-                transform: translate(-300px, -300px);
-            }
+            to { transform: translate(-300px, -300px); }
         }
 
-        /* Боковое меню */
-        .sidebar {
-            width: 160px;
-            background: #0f0f14;
-            padding: 20px;
-            border-right: 1px solid #1a1a22;
+        .heavy-text {
+            font-family: "Arial Black", "Impact", sans-serif;
+            text-transform: uppercase;
         }
 
-        .sidebar a {
-            display: block;
-            margin-bottom: 15px;
-            color: #888;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .sidebar a:hover {
-            color: #a855f7;
-        }
-
-        /* Основной блок */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Верхняя панель */
-        .topbar {
+        /* --- ШАПКА --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 25px;
-            border-bottom: 1px solid #1a1a22;
+            padding: 12px 3%;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            z-index: 1000;
         }
 
-        .title {
-            font-size: 26px;
-            font-weight: bold;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Аккаунт с ПЛАВНОЙ АНИМАЦИЕЙ */
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #a855f7;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .menu-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+        }
+
+        .brand-name {
+            font-size: 20px;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- АККАУНТ И ДРОПДАУН --- */
         .account {
             position: relative;
             padding: 8px 15px;
             background: linear-gradient(45deg, #7c3aed, #a855f7);
             border-radius: 20px;
             cursor: pointer;
+            font-weight: bold;
             user-select: none;
+            box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
         }
 
         .dropdown {
             position: absolute;
             right: 0;
             top: 55px;
-            /* Чуть ниже для эффекта выплывания */
-            width: 200px;
+            width: 220px;
             background: #0f0f14;
             border: 1px solid #a855f7;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(168, 85, 247, 0.3);
             border-radius: 12px;
             padding: 15px;
             z-index: 100;
-
-            /* Анимация */
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            transition: all 0.3s ease;
         }
 
         .dropdown.active {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
-        }
+        }.user-info { text-align: center; margin-bottom: 15px; }
+        .user-email { font-size: 12px; color: #aaa; margin-top: 5px; }
 
-        .user-info {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .user-email {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        /* Кнопка выхода */
-        .logout {
+        .logout-btn {
             padding: 10px;
             text-align: center;
             background: #ff2d2d;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            animation: pulse 1.5s infinite;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { background: #ff5555; box-shadow: 0 0 15px rgba(255, 45, 45, 0.6); }
+
+        /* --- БОКОВОЕ МЕНЮ (Гамбургер) --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(168, 85, 247, 0.3);
+            z-index: 2000;
+            padding: 80px 30px 30px;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 45, 45, 0.5);
-            }
+        .sidebar.open { left: 0; }
 
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 45, 45, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 45, 45, 0);
-            }
+        .close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: none; border: none; color: #888;
+            font-size: 30px; cursor: pointer;
         }
+        .close-btn:hover { color: #ff2d2d; }
 
-        /* Контент */
-        .content {
-            flex: 1;
+        .sidebar a {
+            display: block; color: #ddd; text-decoration: none;
+            font-size: 18px; padding: 15px 0;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+            transition: all 0.3s; font-weight: bold;
+        }
+        .sidebar a:hover { color: #a855f7; padding-left: 10px; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); z-index: 1500;
+            opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ --- */
+        .main-container {
+            margin-top: 70px; /* Отступ под шапку */
+            padding: 20px 3%;
             display: flex;
-            overflow: hidden;
+            flex-direction: column;
+            flex: 1;
         }
 
-        /* Обертка для графика и статистики */
-        .chart-wrap {
+        /* Текст-интро */
+        .intro-text {
+            text-align: center;
+            margin-bottom: 25px;
+            animation: fadeIn 1s;
+        }
+
+        .intro-text h1 {
+            font-size: clamp(24px, 4vw, 36px);
+            color: #fff;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .intro-text p {
+            color: #aaa;
+            font-size: clamp(14px, 2vw, 16px);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Рабочая область (График + Настройки) */
+        .workspace {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .chart-area {
             flex: 1;
             display: flex;
             flex-direction: column;
+            background: rgba(20, 20, 28, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 16px;
             padding: 20px;
             position: relative;
+            min-height: 400px; /* Для мобилок */
         }
 
-        /* Панель статистики */
+        /* Статистика */
         .stats-panel {
             display: flex;
             gap: 20px;
             margin-bottom: 15px;
-            background: #111;
-            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
             border-radius: 12px;
-            border: 1px solid #1a1a22;
+            flex-wrap: wrap; /* Для мобилок */
         }
 
-        .stat-box {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .profit-positive {
-            color: #26a69a;
-        }
-
-        .profit-negative {
-            color: #ef5350;
-        }
-
-        /* Кнопка переключения типа графика - ТЕПЕРЬ КЛИКАБЕЛЬНАЯ */
-        .chart-controls {
-            position: absolute;
-            top: 110px;
-            left: 40px;
-            z-index: 50;
-            /* Поверх графика */
-        }
-
-        .toggle-btn {
-            background: #1a1a22;
-            border: 1px solid #a855f7;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .toggle-btn:hover {
-            background: #2a0a3d;
-            box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
-        }
+        .stat-box { flex: 1; min-width: 120px; }
+        .stat-label { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 22px; font-weight: bold; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .profit-positive { color: #26a69a; text-shadow: 0 0 10px rgba(38, 166, 154, 0.4); }
+        .profit-negative { color: #ef5350; text-shadow: 0 0 10px rgba(239, 83, 80, 0.4); }
 
         #chart {
-            flex: 1;
-            width: 100%;
-            background: #111;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-            /* График под кнопкой */
+            flex: 1; width: 100%; border-radius: 12px; overflow: hidden;
         }
 
-        /* Правая панель настроек */
-        .settings {
-            width: 320px;
-            background: #0f0f14;
-            padding: 20px;
-            border-left: 1px solid #1a1a22;
+        .chart-controls {
+            position: absolute;
+            top: 100px; left: 35px;
+            z-index: 50;
+        }.toggle-btn {
+            background: rgba(20, 20, 28, 0.9);
+            border: 1px solid #a855f7; color: white;
+            padding: 8px 15px; border-radius: 8px; cursor: pointer;
+            font-size: 12px; transition: 0.3s;
+        }
+        .toggle-btn:hover { background: #a855f7; }
+
+        /* Настройки (справа) */
+        .settings-area {
+            width: 340px;
+            background: rgba(20, 20, 28, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 16px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
         }
 
         .settings-group {
             margin-bottom: 20px;
             padding-bottom: 20px;
-            border-bottom: 1px solid #1a1a22;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
-        label {
-            display: block;
-            font-size: 13px;
-            color: #aaa;
-            margin-bottom: 8px;
+        label { display: block; font-size: 13px; color: #aaa; margin-bottom: 8px; }
+
+        /* Инпуты */
+        input[type=text], select {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.4);
+            background: rgba(0,0,0,0.4); color: white; outline: none; transition: 0.3s;
+        }
+        input[type=text]:focus, select:focus {
+            border-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
         }
 
-        input[type=number],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            border: 1px solid #a855f7;
-            background: #1a1a22;
-            color: white;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .slider-block {
-            margin-bottom: 15px;
-        }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 8px;
-            color: #ddd;
-        }
-
+        .slider-block { margin-bottom: 15px; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #ddd; }
+        
         input[type=range] {
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, #2a0a3d, #3b0f5c);
-            border-radius: 5px;
-            appearance: none;
+            width: 100%; height: 6px; background: #2a0a3d;
+            border-radius: 5px; appearance: none;
         }
-
         input[type=range]::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #a855f7;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #a855f7;
-            cursor: pointer;
+            appearance: none; width: 16px; height: 16px;
+            background: #a855f7; border-radius: 50%; box-shadow: 0 0 10px #a855f7; cursor: pointer;
         }
 
         .run-btn {
-            margin-top: auto;
-            width: 100%;
-            padding: 15px;
+            margin-top: auto; padding: 18px;
             background: linear-gradient(45deg, #7c3aed, #a855f7);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            transition: opacity 0.3s;
+            border: none; border-radius: 12px; color: white;
+            font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(168, 85, 247, 0.3);
         }
+        .run-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6); }
+        .run-btn:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        .run-btn:hover {
-            opacity: 0.9;
-        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .run-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            color: #aaa;
+        /* Адаптив под мобилки */
+        @media (max-width: 900px) {
+            .workspace { flex-direction: column; }
+            .settings-area { width: 100%; }
+            .chart-area { min-height: 500px; }
+            .brand-name { display: none; } /* Прячем текст лого для экономии места */
         }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
-        <a href="#">Дашборд</a>
-        <a href="history.html">История</a>
-        <a href="#" onclick="logout(event)">Выйти</a>
-    </div>
-
-    <div class="main">
-
-        <div class="topbar">
-            <div class="title">Дашборд</div>
-
-            <div class="account" onclick="toggleAccount(event)">
-                Аккаунт ▾
-                <div class="dropdown" id="dropdown" onclick="event.stopPropagation()">
-                    <div class="user-info">
-                        <b id="userName">Пользователь</b>
-                        <div class="user-email" id="userEmail">user@mail.ru</div>
-                    </div>
-                    <div class="logout" onclick="logout(event)">ВЫЙТИ</div>
-                </div>
-            </div>
+    <!-- ШАПКА -->
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <a href="index.html" class="brand">
+                <img src="logo.png" alt="QuantVector Logo">
+                <div class="brand-name heavy-text">QuantVector</div>
+            </a>
         </div>
 
-        <div class="content">
+        <div class="account" onclick="toggleAccount(event)">
+            <span id="headerUserName">Аккаунт</span> ▾
+            <div class="dropdown" id="dropdown" onclick="event.stopPropagation()">
+                <div class="user-info">
+                    <b id="userName" class="heavy-text">Пользователь</b>
+                    <div class="user-email" id="userEmail">user@mail.ru</div>
+                </div>
+                <div class="logout-btn heavy-text" onclick="logout(event)">ВЫЙТИ</div>
+            </div>
+        </div>
+    </header>
 
-            <div class="chart-wrap">
-                <!-- Статистика -->
+    <!-- БОКОВОЕ МЕНЮ -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">×</button><a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Дашборд</a>
+        <a href="history.html">📁 История стратегий</a>
+        <a href="#" onclick="logout(event)" style="color: #ff2d2d; margin-top: 20px;">🚪 Выйти</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="main-container">
+        
+        <div class="intro-text">
+            <h1 class="heavy-text">Рабочая область Бэктеста</h1>
+            <p>Настройте параметры торговой пары, выберите индикатор и укажите стартовый депозит. Алгоритм обработает исторические данные и выведет график доходности.</p>
+        </div>
+
+        <div class="workspace">
+            <!-- Левая часть: График и стата -->
+            <div class="chart-area">
                 <div class="stats-panel">
                     <div class="stat-box">
                         <div class="stat-label">Итоговый баланс</div>
                         <div class="stat-value" id="valFinalBalance">$0.00</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-label">Профит</div>
+                        <div class="stat-label">Чистый Профит</div>
                         <div class="stat-value" id="valProfit">$0.00 (0.00%)</div>
                     </div>
                 </div>
 
-                <!-- Управление графиком -->
                 <div class="chart-controls">
-                    <button class="toggle-btn" id="toggleChartBtn" onclick="toggleChartMode()">Режим: Линия</button>
+                    <button class="toggle-btn" id="toggleChartBtn" onclick="toggleChartMode()">РЕЖИМ: ЛИНИЯ</button>
                 </div>
 
                 <div id="chart"></div>
             </div>
 
-            <div class="settings">
+            <!-- Правая часть: Настройки -->
+            <div class="settings-area">
                 <div class="settings-group">
                     <label>Торговая пара</label>
                     <select id="symbol">
@@ -403,8 +419,11 @@
                         <option value="1d">1 День</option>
                         <option value="1w">1 Неделя</option>
                         <option value="1m">1 Месяц</option>
-                    </select><label>Начальный баланс ($)</label>
-                    <input type="number" id="start_balance" placeholder="Начальный баланс" value="1000">
+                    </select>
+                    
+                    <label>Начальный баланс ($)</label>
+                    <!-- Используем text, чтобы обрабатывать запятые вручную через JS -->
+                    <input type="text" id="start_balance" placeholder="1000.50" value="1000">
                 </div>
 
                 <div class="settings-group">
@@ -418,111 +437,110 @@
                     <div id="params"></div>
                 </div>
 
-                <button class="run-btn" id="runBtn" onclick="run()">НАЧАТЬ БЭКТЕСТ</button>
+                <button class="run-btn heavy-text" id="runBtn" onclick="run()">НАЧАТЬ ТЕСТИРОВАНИЕ</button>
             </div>
-
         </div>
+
     </div>
 
     <script>
+        // --- ЗАГРУЗКА ДАННЫХ ПОЛЬЗОВАТЕЛЯ ---
         document.addEventListener("DOMContentLoaded", () => {
-            // Получаем данные из localStorage
             const savedEmail = localStorage.getItem("userEmail");
-            const savedLogin = localStorage.getItem("userLogin");
+            const savedLogin = localStorage.getItem("userLogin") || "User";
 
-            // Если данные есть, подставляем их в меню аккаунта
             if (savedEmail) {
-                document.getElementById("userEmail").innerText = savedEmail;
-            }
-            if (savedLogin) {
-                document.getElementById("userName").innerText = savedLogin;
+                document.getElementById("userEmail").innerText = savedEmail;document.getElementById("userName").innerText = savedLogin;
+                document.getElementById("headerUserName").innerText = savedLogin;
+            } else {
+                window.location.href = "login.html"; // Если не вошел, кидаем на авторизацию
             }
         });
-        /* ========================================= */
 
-        /* Аккаунт и Выход (Ваш старый код ниже) */
-        function toggleAccount(event) {
-            document.getElementById("dropdown").classList.toggle("active");
+        // --- САЙДБАР ---
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("overlay").classList.toggle("active");
         }
 
-
-
-        /* Аккаунт и Выход */
+        // --- ДРОПДАУН АККАУНТА ---
         function toggleAccount(event) {
+            event.stopPropagation();
             document.getElementById("dropdown").classList.toggle("active");
         }
-
-        document.addEventListener("click", function (event) {
-            const accountBtn = document.querySelector('.account');
-            if (!accountBtn.contains(event.target)) {
-                document.getElementById("dropdown").classList.remove("active");
-            }
+        document.addEventListener("click", () => {
+            document.getElementById("dropdown").classList.remove("active");
         });
 
         function logout(event) {
-            if (event) event.preventDefault();
-            localStorage.removeItem("token");
-            localStorage.removeItem("userEmail")
-            localStorage.removeItem("userLogin")
+            event.preventDefault();
+            localStorage.clear();
             window.location.href = "index.html";
         }
 
-        /* Инициализация графика */
+        // --- ГРАФИК ---
         const chartElement = document.getElementById("chart");
         const chart = LightweightCharts.createChart(chartElement, {
             layout: { background: { color: "transparent" }, textColor: "#fff" },
-            grid: { vertLines: { color: '#222' }, horzLines: { color: '#222' } }
+            grid: { vertLines: { color: 'rgba(255,255,255,0.05)' }, horzLines: { color: 'rgba(255,255,255,0.05)' } }
         });
 
-        // Создаем два типа серии: Линию и Свечи
         const lineSeries = chart.addLineSeries({ color: "#a855f7", lineWidth: 2 });
         const candleSeries = chart.addCandlestickSeries({
             upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
             wickUpColor: '#26a69a', wickDownColor: '#ef5350'
         });
 
-        // По умолчанию свечи скрыты
         let isCandleMode = false;
         candleSeries.applyOptions({ visible: false });
 
-        /* Переключение типа графика */
         function toggleChartMode() {
             isCandleMode = !isCandleMode;
             const btn = document.getElementById("toggleChartBtn");
-
             if (isCandleMode) {
                 lineSeries.applyOptions({ visible: false });
                 candleSeries.applyOptions({ visible: true });
-                btn.innerText = "Режим: Свечи";
+                btn.innerText = "РЕЖИМ: СВЕЧИ";
             } else {
                 lineSeries.applyOptions({ visible: true });
                 candleSeries.applyOptions({ visible: false });
-                btn.innerText = "Режим: Линия";
+                btn.innerText = "РЕЖИМ: ЛИНИЯ";
             }
         }
 
-        window.addEventListener('resize', () => { chart.resize(chartElement.clientWidth, chartElement.clientHeight); });
+        // Адаптивный график при ресайзе
+        new ResizeObserver(entries => {
+            if (entries.length === 0 || entries[0].target !== chartElement) return;
+            const newRect = entries[0].contentRect;
+            chart.applyOptions({ height: newRect.height, width: newRect.width });
+        }).observe(chartElement);
 
-        /* Шаблон слайдеров */
+        // --- ПАРАМЕТРЫ СТРАТЕГИЙ ---
         function slider(id, label, min, max, val, step = 1) {
-            return `
-    <div class="slider-block">
-        <div class="slider-label">
-            <span>${label}</span>
-            <span id="${id}_v" style="color: #a855f7; font-weight: bold;">${val}</span>
-        </div>
-        <input type="range" id="${id}" min="${min}" max="${max}" value="${val}" step="${step}">
-    </div>`;
+            // Для Bollinger Bands отклонения используем input type="text" чтобы юзер мог писать запятую
+            if(id === "deviation") {
+                return 
+                `<div class="slider-block">
+                    <label style="color:#ddd;">${label}</label>
+                    <input type="text" id="${id}" value="${val}" placeholder="Например 2.0 или 2,5">
+                </div>`;
+            }
+
+            return 
+            `<div class="slider-block">
+                <div class="slider-label">
+                    <span>${label}</span>
+                    <span id="${id}_v" style="color: #a855f7; font-weight: bold;">${val}</span>
+                </div>
+                <input type="range" id="${id}" min="${min}" max="${max}" value="${val}" step="${step}">
+            </div>`;
         }
 
-        /* Отрисовка параметров стратегии */
         const paramsDiv = document.getElementById("params");
         const strategySelect = document.getElementById("strategySelect");
 
         function renderParams() {
-            let s = strategySelect.value;
-            let h = "";
-
+            let s = strategySelect.value;let h = "";
             if (s === "RSI_Oscillator") {
                 h += slider("period", "Период", 5, 50, 14);
                 h += slider("buy_level", "Уровень покупки", 10, 40, 30);
@@ -539,29 +557,48 @@
             }
             else if (s === "Bollinger_Bands") {
                 h += slider("window", "Размер окна", 10, 100, 20);
-                h += slider("deviation", "Отклонение", 1, 3, 2, 0.1);
+                h += slider("deviation", "Отклонение (Float)", 1, 4, 2); 
             }
-
             paramsDiv.innerHTML = h;
 
-            paramsDiv.querySelectorAll("input").forEach(i => {
+            paramsDiv.querySelectorAll("input[type=range]").forEach(i => {
                 let v = document.getElementById(i.id + "_v");
                 i.addEventListener("input", () => v.innerText = i.value);
             });
         }
         strategySelect.onchange = renderParams;
-        renderParams(); // Вызов при загрузке страницы
+        renderParams(); 
 
-        /* Запуск бэктеста */
+        // --- УНИВЕРСАЛЬНЫЙ ПАРСЕР ЧИСЕЛ С ЗАПЯТОЙ ---
+        function parseToFloatWithComma(strValue) {
+            if(!strValue) return 0;
+            // Меняем запятую на точку и парсим
+            return parseFloat(strValue.toString().replace(',', '.'));
+        }
+
+        // --- ЗАПУСК БЭКТЕСТА ---
         async function run() {
             const btn = document.getElementById("runBtn");
-            btn.innerText = "ЗАГРУЗКА...";
+            btn.innerText = "ОБРАБОТКА ДАННЫХ...";
             btn.disabled = true;
 
             let params = {};
-            paramsDiv.querySelectorAll("input").forEach(i => { params[i.id] = Number(i.value); });
+            paramsDiv.querySelectorAll("input").forEach(i => { 
+                // Загоняем все параметры через наш парсер запятых
+                params[i.id] = parseToFloatWithComma(i.value); 
+            });
 
-            const startBalance = Number(document.getElementById("start_balance").value);
+            // Парсим начальный баланс с учетом запятых
+            const rawStartBalance = document.getElementById("start_balance").value;
+            const startBalance = parseToFloatWithComma(rawStartBalance);
+
+            if(isNaN(startBalance) || startBalance <= 0) {
+                alert("Пожалуйста, введите корректный начальный баланс.");
+                btn.innerText = "НАЧАТЬ ТЕСТИРОВАНИЕ";
+                btn.disabled = false;
+                return;
+            }
+
             const token = localStorage.getItem("token") || "";
 
             const payload = {
@@ -577,16 +614,14 @@
                 strategy: { name: strategySelect.value, params: params }
             };
 
-            const SERVER_URL = "https://pqw8f62nq329.shares.zrok.io/api/backtest/run";
-
             try {
-                const res = await fetch(SERVER_URL, {
+                const res = await fetch("https://pqw8f62nq329.shares.zrok.io/api/backtest/run", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", ...(token ? { "Authorization": token } : {}) },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) throw new Error(`Ошибка сервера! Статус: ${res.status}`);
+                if (!res.ok) throw new Error(Ошибка сервера: ${res.status});
 
                 const data = await res.json();
 
@@ -596,13 +631,10 @@
                     const candleData = [];
 
                     data.chart_data.forEach(x => {
-                        lineData.push({ time: x.time, value: x.balance });
-
-                        const open = x.open !== undefined ? x.open : prevBal;
+                        lineData.push({ time: x.time, value: x.balance });const open = x.open !== undefined ? x.open : prevBal;
                         const close = x.close !== undefined ? x.close : x.balance;
                         const high = x.high !== undefined ? x.high : Math.max(open, close);
                         const low = x.low !== undefined ? x.low : Math.min(open, close);
-
                         candleData.push({ time: x.time, open, high, low, close });
                         prevBal = close;
                     });
@@ -611,31 +643,26 @@
                     candleSeries.setData(candleData);
                     chart.timeScale().fitContent();
 
-                    // Статистика
                     const finalBalance = lineData[lineData.length - 1].value;
                     const netProfit = finalBalance - startBalance;
                     const profitPct = (netProfit / startBalance) * 100;
 
-                    document.getElementById("valFinalBalance").innerText = `$${finalBalance.toFixed(2)}`;
-
+                    document.getElementById("valFinalBalance").innerText = $${finalBalance.toFixed(2)};
                     const profitEl = document.getElementById("valProfit");
-                    profitEl.innerText = `${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)} (${profitPct.toFixed(2)}%)`;
-                    profitEl.className = `stat-value ${netProfit >= 0 ? 'profit-positive' : 'profit-negative'}`;
-
+                    profitEl.innerText = ${netProfit >= 0 ? '+' : ''}$${netProfit.toFixed(2)} (${profitPct.toFixed(2)}%);
+                    profitEl.className = stat-value ${netProfit >= 0 ? 'profit-positive' : 'profit-negative'};
                 } else {
-                    alert("Сервер вернул пустые данные графика.");
+                    alert("Сервер вернул пустые данные.");
                 }
-
             } catch (error) {
                 console.error(error);
                 alert("Ошибка: " + error.message);
             } finally {
-                btn.innerText = "НАЧАТЬ БЭКТЕСТ";
+                btn.innerText = "НАЧАТЬ ТЕСТИРОВАНИЕ";
                 btn.disabled = false;
             }
         }
     </script>
-
 </body>
 
 </html>

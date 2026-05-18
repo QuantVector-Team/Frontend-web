@@ -4,304 +4,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Auth</title>
+    <title>QuantVector — Бэктест криптостратегий</title>
 
     <style>
+        /* Базовые настройки */
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background: #09090B;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* Animated neon background */
-        body::before {
-            content: "";
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(120deg,
-                    rgba(139, 92, 246, 0.08) 0px,
-                    rgba(139, 92, 246, 0.08) 2px,
-                    transparent 2px,
-                    transparent 80px);
-            animation: moveBg 20s linear infinite;
-        }
-
-        @keyframes moveBg {
-            from {
-                transform: translate(0, 0);
-            }
-
-            to {
-                transform: translate(-200px, -200px);
-            }
-        }
-
-        /* Glass card */
-        .card {
-            position: relative;
-            width: 420px;
-            padding: 40px;
-            border-radius: 24px;
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(25px);
-            box-shadow: 0 0 60px rgba(139, 92, 246, 0.25);
-            z-index: 2;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            cursor: pointer;
-            color: #aaa;
-            transition: 0.3s;
-        }
-
-        .tab.active {
-            color: #8B5CF6;
-        }
-
-        /* Sliding indicator */
-        .indicator {
-            position: absolute;
-            bottom: 0;
-            height: 2px;
-            width: 50%;
-            background: #8B5CF6;
-            transition: transform 0.4s ease;
-        }
-
-        .indicator.right {
-            transform: translateX(100%);
-        }
-
-        /* Forms container */
-        .forms {
-            position: relative;
-            height: 230px;
-            overflow: hidden;
-        }
-
-        /* Forms */
-        form {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
+            background: #0b0b0f;
+            color: #fff;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            transition: transform 0.4s ease, opacity 0.4s ease;
+            overflow-x: hidden;
         }
 
-        form.hidden {
-            opacity: 0;
-            pointer-events: none;
+        /* Анимированный неоновый фон */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(60deg,
+                    rgba(168, 85, 247, 0.05),
+                    rgba(168, 85, 247, 0.05) 2px,
+                    transparent 2px,
+                    transparent 40px);
+            animation: bg 25s linear infinite;
+            z-index: -1;
         }
 
-        #loginForm {
-            transform: translateX(0);
+        @keyframes bg {
+            to {
+                transform: translate(-300px, -300px);
+            }
         }
 
-        #registerForm {
-            transform: translateX(100%);
+        /* Шрифты для выделения (Arial Black) */
+        .heavy-text {
+            font-family: "Arial Black", "Impact", sans-serif;
+            text-transform: uppercase;
         }
 
-        .forms.show-register #loginForm {
-            transform: translateX(-100%);
-            opacity: 0;
+        /* --- ШАПКА (Header) --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
 
-        .forms.show-register #registerForm {
-            transform: translateX(0);
-            opacity: 1;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: #fff;
         }
 
-        /* Inputs */
-        input {
-            margin-bottom: 14px;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+        /* КРУГЛЫЙ ЛОГОТИП */
+        .brand img {
+            width: 50px;
+            height: 50px; /* Жестко задаем высоту, равную ширине */
+            border-radius: 50%; /* Делает изображение круглым */
+            object-fit: cover; /* Обрезает картинку по кругу без искажений */
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6); /* Тень вокруг круга */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .brand:hover img {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.9);
+        }
+
+        .brand-name {
+            font-size: 24px;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #fff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- КНОПКИ И АККАУНТ (Справа в шапке) --- */
+        .auth-block {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Кнопка "Войти" */
+        .btn-login {
+            display: none; /* Скрыта по умолчанию, JS ее покажет */
+            padding: 10px 25px;
+            background: transparent;
+            color: #a855f7;
+            border: 2px solid #a855f7;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
             font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
         }
 
-        input::placeholder {
-            color: #888;
+        .btn-login:hover {
+            background: #a855f7;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
         }
 
-        /* Button */
-        button {
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            background: #8B5CF6;
-            color: white;
-            font-size: 15px;
+        /* Блок профиля (Аккаунт) */
+        #userProfileBlock {
+            display: none; /* Скрыт по умолчанию, JS его покажет */
+        }.account-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            background: linear-gradient(45deg, #7c3aed, #a855f7);
+            border-radius: 20px;
             cursor: pointer;
-            transition: 0.3s;
+            user-select: none;
+            font-weight: bold;
+            transition: transform 0.2s ease, box-shadow 0.2s;
         }
 
-        button:hover {
-            box-shadow: 0 0 20px #8B5CF6;
+        .account-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Выпадающее меню а-ля GitHub */
+        .dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 220px;
+            background: #0f0f14;
+            border: 1px solid #a855f7;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(168, 85, 247, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            
+            /* Плавное появление */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-15px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+
+        .dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 15px;
+            border-bottom: 1px solid #1a1a22;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .dropdown-header span {
+            display: block;
+            color: #fff;
+            font-size: 16px;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+
+        .dropdown-links a {
+            display: block;
+            padding: 12px 15px;
+            color: #ddd;
+            text-decoration: none;
+            font-size: 14px;
+            border-bottom: 1px solid #1a1a22;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .dropdown-links a:hover {
+            background: rgba(168, 85, 247, 0.1);
+            color: #a855f7;
+            padding-left: 20px;
+        }
+
+        .dropdown-links a.logout {
+            color: #ff2d2d;
+            font-weight: bold;
+            border-bottom: none;
+        }
+
+        .dropdown-links a.logout:hover {
+            background: rgba(255, 45, 45, 0.1);
+            color: #ff5555;
+        }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ (Hero Section) --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 120px 20px 60px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: clamp(30px, 5vw, 60px);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero-title span {
+            color: #a855f7;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(14px, 2vw, 18px);
+            color: #aaa;
+            max-width: 700px;
+            margin: 0 auto 40px auto;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        /* Плашки со стратегиями */
+        .strategies-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .tag {
+            background: #1a1a22;
+            border: 1px solid #3b0f5c;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #e0e0e0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            border-color: #a855f7;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+            transform: translateY(-3px);
+        }/* Главная кнопка */
+        .cta-btn {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(45deg, #7c3aed, #a855f7);
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+            transition: all 0.3s ease;
+            animation: pulse-main 2s infinite, fadeInUp 1s ease-out 0.9s both;
+            cursor: pointer;
+            border: none;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+        }
+
+        /* --- ПОДВАЛ (Footer) --- */
+        footer {
+            background: #0f0f14;
+            border-top: 1px solid #1a1a22;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-links a:hover {
+            color: #a855f7;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .legal-link {
+            font-size: 12px;
+            color: #555;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .legal-link:hover {
+            color: #aaa;
+        }
+
+        /* --- АНИМАЦИИ --- */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-main {
+            0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(168, 85, 247, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); }
+        }
+
+        /* Мобильная адаптация */
+        @media (max-width: 600px) {
+            header {
+                padding: 10px 15px;
+            }
+            .brand-name {
+                font-size: 18px;
+            }
+            .brand img {
+                width: 40px;
+                height: 40px;
+            }
+            .cta-btn {
+                width: 100%;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="card">
-        <div class="tabs">
-            <div class="tab active" id="loginTab">Логин</div>
-            <div class="tab" id="registerTab">Регистрация</div>
-            <div class="indicator" id="indicator"></div>
+    <!-- ШАПКА -->
+    <header>
+        <a href="index.html" class="brand">
+            <!-- Убедитесь, что фото логотипа называется logo.png -->
+            <img src="logo.png" alt="QuantVector Logo">
+            <div class="brand-name heavy-text">QuantVector</div>
+        </a>
+
+        <div class="auth-block">
+            <!-- Кнопка логина (покажется, если не вошел) -->
+            <a href="login.html" class="btn-login heavy-text" id="loginBtn">ВОЙТИ</a>
+            
+            <!-- Профиль и выпадающее меню (покажутся, если вошел) -->
+            <div id="userProfileBlock">
+                <div class="account-btn" onclick="toggleAccount(event)">
+                    <span id="headerUserName">User</span> ▾
+                </div>
+                
+                <div class="dropdown" id="dropdown" onclick="event.stopPropagation()"><div class="dropdown-header">
+                        Вы вошли как:
+                        <span class="heavy-text" id="dropdownUserName">User</span>
+                    </div>
+                    <div class="dropdown-links">
+                        <a href="dashboard.html">Дашборд</a>
+                        <a href="#" onclick="goToHistory(event)">История стратегий</a>
+                        <a href="#" class="logout" onclick="logout(event)">Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ГЛАВНЫЙ ЭКРАН -->
+    <main>
+        <h1 class="hero-title heavy-text">Платформа для <span>Бэктеста</span><br>Криптостратегий</h1>
+        
+        <p class="hero-subtitle">
+            Мы в <b>QuantVector</b> создали мощное приложение для бета-теста торговых алгоритмов. 
+            Проверяйте свои гипотезы на исторических данных крипторынка с использованием передовых индикаторов, 
+            настраивайте параметры и получайте детальную статистику профита.
+        </p>
+
+        <div class="strategies-tags">
+            <div class="tag">SMA (Скользящая средняя)</div>
+            <div class="tag">RSI Oscillator</div>
+            <div class="tag">Bollinger Bands</div>
+            <div class="tag">MACD</div>
         </div>
 
-        <div class="forms" id="forms">
-            <!-- Login -->
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required>
-                <input type="password" id="loginPassword" placeholder="Пароль" required>
-                <button type="submit">Войти</button>
-            </form>
+        <!-- Теперь кнопка проверяет логин перед переходом -->
+        <a href="#" onclick="ctaAction(event)" class="cta-btn heavy-text">НАЧАТЬ ТЕСТИРОВАНИЕ</a>
+    </main>
 
-            <!-- Register -->
-            <form id="registerForm">
-                <input type="text" id="registerLogin" placeholder="Логин" required>
-                <input type="email" id="registerEmail" placeholder="Email" required>
-                <input type="password" id="registerPassword" placeholder="Пароль" required>
-                <button type="submit">Создать аккаунт</button>
-            </form>
+    <!-- ПОДВАЛ -->
+    <footer>
+        <div class="footer-links">
+            <a href="https://vk.ru/quantvector" target="_blank">
+                🌐 Сообщество ВК (Бот)
+            </a>
+            <a href="https://gitverse.ru/quantvector" target="_blank">
+                💻 GitVerse
+            </a>
+            <a href="https://github.com/QuantVector-Team" target="_blank">
+                🐙 GitHub
+            </a>
         </div>
-    </div>
+        <div style="margin-top: 20px;">
+            <a href="#" class="legal-link">Пользовательское соглашение</a>
+        </div>
+    </footer>
+
 
     <script>
-        const loginTab = document.getElementById("loginTab");
-        const registerTab = document.getElementById("registerTab");
-        const forms = document.getElementById("forms");
-        const indicator = document.querySelector(".indicator"); // Исправил получение индикатора
+        // При загрузке страницы проверяем, вошел ли пользователь
+        document.addEventListener("DOMContentLoaded", checkAuthStatus);
 
-        // Переключение вкладок
-        loginTab.onclick = () => {
-            loginTab.classList.add("active");
-            registerTab.classList.remove("active");
-            forms.classList.remove("show-register");
-            indicator.classList.remove("right");
-        };
+        function checkAuthStatus() {
+            const savedEmail = localStorage.getItem("userEmail");
+            const savedLogin = localStorage.getItem("userLogin") || "Пользователь";
+            
+            const loginBtn = document.getElementById("loginBtn");
+            const profileBlock = document.getElementById("userProfileBlock");
 
-        registerTab.onclick = () => {
-            registerTab.classList.add("active");
-            loginTab.classList.remove("active");
-            forms.classList.add("show-register");
-            indicator.classList.add("right");
-        };
+            // Если почта есть в хранилище - значит вошел
+            if (savedEmail) {
+                loginBtn.style.display = "none";             // скрываем кнопку Войти
+                profileBlock.style.display = "block";        // показываем Профиль
+                
+                // Вставляем никнейм в шапку и в меню
+                document.getElementById("headerUserName").innerText = savedLogin;
+                document.getElementById("dropdownUserName").innerText = savedLogin;
+            } else {
+                loginBtn.style.display = "inline-block";     // показываем кнопку Войти
+                profileBlock.style.display = "none";         // скрываем Профиль
+            }
+        }
 
-        // === ЛОГИН ===
-        document.getElementById("loginForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
+        // Действие для главной кнопки "Начать тестирование"
+        function ctaAction(event) {
+            event.preventDefault(); // Останавливаем стандартный переход
+            const savedEmail = localStorage.getItem("userEmail");
+            
+            if (savedEmail) {
+                // Если зарегистрирован/вошел -> кидаем в дашборд
+                window.location.href = "dashboard.html";
+            } else {
+                // Если не вошел -> кидаем на страницу входа
+                window.location.href = "login.html";
+            }
+        }// Открытие/закрытие выпадающего меню аккаунта
+        function toggleAccount(event) {
+            event.stopPropagation(); // Не даем клику дойти до body
+            const dropdown = document.getElementById("dropdown");
+            if(dropdown) {
+                dropdown.classList.toggle("active");
+            }
+        }
 
-            const email = document.getElementById("loginEmail").value;
-            const password = document.getElementById("loginPassword").value;
-
-            try {
-                // Исправлен URL (убрано &quot;)
-                const res = await fetch("https://pqw8f62nq329.shares.zrok.io/api/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        platform: "web", // или "mobile", если сервер строго требует именно это слово
-                        auth_data: {
-                            email: email,
-                            password: password
-                            // При логине поле "login" обычно не отправляется, но если сервер требует, можно добавить: login: ""
-                        }
-                    })
-                });
-
-                const data = await res.json();
-
-                if (data.status === "success") {
-                    // СОХРАНЯЕМ ДАННЫЕ ДЛЯ ДАШБОРДА
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("userEmail", email);
-
-                    // Вытаскиваем имя из почты (всё что до @), так как при логине мы не знаем логин
-                    const tempLogin = email.split('@')[0];
-                    localStorage.setItem("userLogin", tempLogin);
-
-                    window.location.href = "dashboard.html";
-                } else {
-                    alert(data.message || "Ошибка входа");
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert("Сервер недоступен");
+        // Закрываем меню при клике по любому пустому месту страницы
+        document.addEventListener("click", function (event) {
+            const dropdown = document.getElementById("dropdown");
+            if (dropdown && dropdown.classList.contains("active")) {
+                dropdown.classList.remove("active");
             }
         });
 
-        // === РЕГИСТРАЦИЯ ===
-        document.getElementById("registerForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
+        // Функция выхода
+        function logout(event) {
+            event.preventDefault();
+            // Удаляем данные из локального хранилища
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userLogin");
+            localStorage.removeItem("token"); 
+            
+            // Обновляем отображение кнопок
+            checkAuthStatus();
+        }
 
-            const login = document.getElementById("registerLogin").value;
-            const email = document.getElementById("registerEmail").value;
-            const password = document.getElementById("registerPassword").value;
-
-            try {
-                // Исправлен URL (убрано &quot;)
-                const res = await fetch("https://pqw8f62nq329.shares.zrok.io/api/register", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        platform: "web", // или "mobile"
-                        auth_data: {
-                            email: email,
-                            password: password,
-                            login: login // Отправляем логин, как требует JSON-схема
-                        }
-                    })
-                });
-
-                const data = await res.json();
-
-                if (data.status === "success") {
-                    // СОХРАНЯЕМ ДАННЫЕ ДЛЯ ДАШБОРДА
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("userEmail", email);
-                    localStorage.setItem("userLogin", login);
-
-                    window.location.href = "dashboard.html";
-                } else {
-                    alert(data.message || "Ошибка регистрации");
-                }
-
-            } catch (error) {
-                console.error(error);
-                alert("Сервер недоступен");
+        // Защищенный переход в историю из меню
+        function goToHistory(event) {
+            event.preventDefault();
+            const savedEmail = localStorage.getItem("userEmail");
+            if (savedEmail) {
+                window.location.href = "history.html";
+            } else {
+                window.location.href = "login.html";
             }
-        });
+        }
     </script>
-
 </body>
 
 </html>
