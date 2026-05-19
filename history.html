@@ -3,26 +3,33 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>История стратегий</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История стратегий — QuantVector</title>
+    
     <style>
+        /* Базовые настройки */
         * {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             background: #0b0b0f;
             color: #fff;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Анимированный фон (как в дашборде) */
+        /* Анимированный неоновый фон */
         body::before {
             content: "";
             position: fixed;
+            top: 0;
+            left: 0;
             width: 200%;
             height: 200%;
             background: repeating-linear-gradient(60deg,
@@ -35,99 +42,117 @@
         }
 
         @keyframes bg {
-            to {
-                transform: translate(-300px, -300px);
-            }
+            to { transform: translate(-300px, -300px); }
         }
 
-        /* Боковое меню */
-        .sidebar {
-            width: 160px;
-            background: #0f0f14;
-            padding: 20px;
-            border-right: 1px solid #1a1a22;
+        /* Шрифты для выделения (Arial Black) */
+        .heavy-text {
+            font-family: "Arial Black", "Impact", sans-serif;
+            text-transform: uppercase;
         }
 
-        .sidebar a {
-            display: block;
-            margin-bottom: 15px;
-            color: #888;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .sidebar a:hover,
-        .sidebar a.active {
-            color: #a855f7;
-            font-weight: bold;
-        }
-
-        /* Основной блок */
-        .main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Верхняя панель */
-        .topbar {
+        /* --- ШАПКА --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 25px;
-            border-bottom: 1px solid #1a1a22;
+            padding: 12px 3%;
+            background: rgba(15, 15, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            z-index: 1000;
         }
 
-        .title {
-            font-size: 26px;
-            font-weight: bold;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Аккаунт */
+        .menu-btn {
+            background: none;
+            border: none;
+            color: #a855f7;
+            font-size: 28px;
+            cursor: pointer;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        .menu-btn:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .brand img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+            transition: transform 0.3s;
+        }
+
+        .brand:hover img {
+            transform: scale(1.1);
+        }
+
+        .brand-name {
+            font-size: 20px;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- АККАУНТ И ДРОПДАУН --- */
         .account {
             position: relative;
             padding: 8px 15px;
             background: linear-gradient(45deg, #7c3aed, #a855f7);
             border-radius: 20px;
             cursor: pointer;
+            font-weight: bold;
             user-select: none;
+            box-shadow: 0 4px 10px rgba(168, 85, 247, 0.3);
         }
 
         .dropdown {
             position: absolute;
             right: 0;
             top: 55px;
-            width: 200px;
+            width: 220px;
             background: #0f0f14;
             border: 1px solid #a855f7;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(168, 85, 247, 0.3);
             border-radius: 12px;
             padding: 15px;
-            z-index: 100;
+            z-index: 1001;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            transition: all 0.3s ease;
         }
 
         .dropdown.active {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1;visibility: visible;
             transform: translateY(0);
         }
 
-        .user-info {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+        .user-info { text-align: center; margin-bottom: 15px; }
+        .user-email { font-size: 12px; color: #aaa; margin-top: 5px; }
 
-        .user-email {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        .logout {
+        .logout-btn {
             padding: 10px;
             text-align: center;
             background: #ff2d2d;
@@ -136,49 +161,120 @@
             font-weight: bold;
             transition: 0.3s;
         }
+        .logout-btn:hover { background: #ff5555; box-shadow: 0 0 15px rgba(255, 45, 45, 0.6); }
 
-        .logout:hover {
-            box-shadow: 0 0 15px rgba(255, 45, 45, 0.6);
+        /* --- БОКОВОЕ МЕНЮ (Гамбургер) --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(15, 15, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(168, 85, 247, 0.3);
+            z-index: 2000;
+            padding: 80px 30px 30px;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Контент: Таблица Истории */
-        .content {
+        .sidebar.open { left: 0; }
+
+        .close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: none; border: none; color: #888;
+            font-size: 30px; cursor: pointer;
+        }
+        .close-btn:hover { color: #ff2d2d; }
+
+        .sidebar a {
+            display: block; color: #ddd; text-decoration: none;
+            font-size: 18px; padding: 15px 0;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+            transition: all 0.3s; font-weight: bold;
+        }
+        .sidebar a:hover { color: #a855f7; padding-left: 10px; }
+        
+        /* Подсветка активной страницы в меню */
+        .sidebar a.active {
+            color: #a855f7;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.6); z-index: 1500;
+            opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ --- */
+        .main-container {
+            margin-top: 70px;
+            padding: 40px 5%;
+            display: flex;
+            flex-direction: column;
             flex: 1;
-            padding: 30px;
-            overflow-y: auto;
         }
 
+        /* Текст-интро */
+        .intro-text {
+            text-align: center;
+            margin-bottom: 35px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .intro-text h1 {
+            font-size: clamp(24px, 4vw, 36px);
+            color: #fff;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .intro-text p {
+            color: #aaa;
+            font-size: clamp(14px, 2vw, 16px);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Контейнер таблицы */
         .table-container {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(20, 20, 28, 0.6);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(168, 85, 247, 0.2);
             border-radius: 16px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            
+            /* Для мобилок добавляем скролл по горизонтали */
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
+            min-width: 600px; /* Чтобы не сплющивалась на мобилках */
         }
 
         thead tr {
-            border-bottom: 1px solid rgba(168, 85, 247, 0.4);
+            border-bottom: 2px solid rgba(168, 85, 247, 0.4);
         }
 
         th {
             color: #a855f7;
             padding: 15px 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 13px;
+            font-weight: bold;
+            font-size: 14px;
             letter-spacing: 1px;
         }
 
         td {
-            padding: 15px 10px;
-            border-bottom: 1px solid #1a1a22;
+            padding: 18px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             color: #ddd;
             font-size: 15px;
         }
@@ -188,123 +284,170 @@
         }
 
         tbody tr:hover {
-            background: rgba(168, 85, 247, 0.08);
+            background: rgba(168, 85, 247, 0.1);
         }
 
         /* Цвета профита */
         .profit-positive {
             color: #26a69a;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(38, 166, 154, 0.3);
         }
 
         .profit-negative {
             color: #ef5350;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(239, 83, 80, 0.3);
         }
 
         .badge-symbol {
-            background: #1a1a22;
-            border: 1px solid #444;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
         }
 
         .loading-text {
             text-align: center;
-            padding: 40px;
+            padding: 40px !important;
             color: #888;
             font-size: 16px;
+        }
+
+        /* Анимации */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Мобильная адаптация */
+        max-width: 600px {
+            .brand-name { display: none; }
+            .main-container { padding: 30px 3%; }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="sidebar">
-        <a href="dashboard.html">Дашборд</a>
-        <a href="history.html" class="active">История</a>
-        <a href="#" onclick="logout(event)">Выйти</a>
-    </div>
+    <!-- ШАПКА -->
+    <header>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <a href="index.html" class="brand">
+                <img src="logo.png" alt="QuantVector Logo">
+                <div class="brand-name heavy-text">QuantVector</div>
+            </a>
+        </div>
 
-    <div class="main">
-        <div class="topbar">
-            <div class="title">История тестов</div>
-
-            <div class="account" onclick="toggleAccount(event)">
-                Аккаунт ▾
-                <div class="dropdown" id="dropdown" onclick="event.stopPropagation()">
-                    <div class="user-info">
-                        <b id="userName">Пользователь</b>
-                        <div class="user-email" id="userEmail">user@mail.ru</div>
-                    </div>
-                    <div class="logout" onclick="logout(event)">ВЫЙТИ</div>
+        <div class="account" onclick="toggleAccount(event)">
+            <span id="headerUserName">Аккаунт</span> ▾
+            <div class="dropdown" id="dropdown" onclick="event.stopPropagation()">
+                <div class="user-info">
+                    <b id="userName" class="heavy-text">Пользователь</b>
+                    <div class="user-email" id="userEmail">user@mail.ru</div>
                 </div>
+                <div class="logout-btn heavy-text" onclick="logout(event)">ВЫЙТИ</div>
             </div>
+        </div>
+    </header>
+
+    <!-- БОКОВОЕ МЕНЮ -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">×</button>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Дашборд</a>
+        <a href="history.html" class="active">📁 История стратегий</a>
+        <a href="#" onclick="logout(event)" style="color: #ff2d2d; margin-top: 20px;">🚪 Выйти</a>
+    </div>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <div class="main-container">
+        
+        <!-- Описание страницы -->
+        <div class="intro-text">
+            <h1 class="heavy-text">История Тестов</h1>
+            <p>Здесь сохраняются результаты всех ваших предыдущих запусков. Анализируйте прошлые бэктесты, сравнивайте профит различных стратегий и находите идеальные параметры для максимальной доходности.</p>
         </div>
 
-        <div class="content">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Дата</th>
-                            <th>Пара</th>
-                            <th>Стратегия</th>
-                            <th>Профит (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <tr>
-                            <td colspan="4" class="loading-text">Загрузка истории...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+        <!-- Таблица -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr class="heavy-text">
+                        <th>Дата и Время</th>
+                        <th>Торговая Пара</th>
+                        <th>Стратегия</th>
+                        <th>Профит (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td colspan="4" class="loading-text">Загрузка данных с сервера...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div></div>
 
     <script>
-        // URL твоего сервера (Подставь правильный путь к истории!)
+        // URL твоего сервера
         const API_HISTORY_URL = "https://pqw8f62nq329.shares.zrok.io/api/history";
 
         /* ========================================= */
         /* ИНИЦИАЛИЗАЦИЯ И ДАННЫЕ ПОЛЬЗОВАТЕЛЯ       */
         /* ========================================= */
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. Проверяем токен, если нет - на страницу входа
             const token = localStorage.getItem("token");
             if (!token) {
-                window.location.href = "index.html";
+                // Если нет токена - кидаем на главную/логин
+                window.location.href = "login.html";
                 return;
             }
 
-            // 2. Подставляем почту и логин
+            // Подставляем почту и логин
             const savedEmail = localStorage.getItem("userEmail");
-            const savedLogin = localStorage.getItem("userLogin");
+            const savedLogin = localStorage.getItem("userLogin") || "User";
+            
             if (savedEmail) document.getElementById("userEmail").innerText = savedEmail;
-            if (savedLogin) document.getElementById("userName").innerText = savedLogin;
+            
+            document.getElementById("userName").innerText = savedLogin;
+            document.getElementById("headerUserName").innerText = savedLogin;
 
-            // 3. Загружаем историю
+            // Загружаем историю
             fetchHistory(token);
         });
 
         /* ========================================= */
-        /* ЛОГИКА МЕНЮ АККАУНТА И ВЫХОДА             */
+        /* ЛОГИКА МЕНЮ АККАУНТА И САЙДБАРА           */
         /* ========================================= */
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("overlay").classList.toggle("active");
+        }
+
         function toggleAccount(event) {
+            event.stopPropagation();
             document.getElementById("dropdown").classList.toggle("active");
         }
 
         document.addEventListener("click", function (event) {
-            const accountBtn = document.querySelector('.account');
-            if (!accountBtn.contains(event.target)) {
-                document.getElementById("dropdown").classList.remove("active");
+            const dropdown = document.getElementById("dropdown");
+            if (dropdown && dropdown.classList.contains("active")) {
+                dropdown.classList.remove("active");
             }
         });
 
         function logout(event) {
-            if (event) event.preventDefault();
+            event.preventDefault();
             localStorage.removeItem("token");
             localStorage.removeItem("userEmail");
             localStorage.removeItem("userLogin");
@@ -326,7 +469,7 @@
                         // , "Authorization": token 
                     },
                     body: JSON.stringify({
-                        platform: "web", // Для сайта обычно web (но если сервер требует mobile, поменяй)
+                        platform: "web",
                         token: token,
                         limit: 10
                     })
@@ -338,7 +481,7 @@
                     tbody.innerHTML = ""; // Очищаем текст "Загрузка..."
 
                     if (!data.data || data.data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="loading-text">История пуста. Запустите бэктест!</td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="4" class="loading-text">История пуста. Запустите свой первый бэктест на Дашборде!</td></tr>`;
                         return;
                     }
 
@@ -351,11 +494,11 @@
 
                         const row = document.createElement("tr");
                         row.innerHTML = `
-                    <td>${item.date}</td>
-                    <td><span class="badge-symbol">${item.symbol}</span></td>
-                    <td>${item.strategy_name}</td>
-                    <td class="${profitClass}">${profitSign}${item.profit_percent.toFixed(2)}%</td>
-                `;
+                            <td>${item.date}</td>
+                            <td><span class="badge-symbol">${item.symbol}</span></td>
+                            <td>${item.strategy_name}</td>
+                            <td class="${profitClass}">${profitSign}${item.profit_percent.toFixed(2)}%</td>
+                        `;
                         tbody.appendChild(row);
                     });
 
